@@ -1,4 +1,7 @@
+
 let memoryToken: string | null = null;
+
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
 
 export function setAuthToken(token: string | null): void {
   memoryToken = token;
@@ -19,32 +22,42 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiRequest<T>(url: string, options: RequestInit = {}): Promise<T> {
+export async function apiRequest<T>(
+  url: string,
+  options: RequestInit = {}
+): Promise<T> {
   const headers = new Headers(options.headers || {});
+
   if (!headers.has('Content-Type') && options.body) {
     headers.set('Content-Type', 'application/json');
   }
+
   if (memoryToken) {
     headers.set('Authorization', `Bearer ${memoryToken}`);
   }
 
-  const response = await fetch(url, {
+  const response = await fetch(`${API_BASE_URL}${url}`, {
     ...options,
     headers,
   });
 
   let payload: any = null;
-  const text = await response.text();
-  if (text) {
+  const responseText = await response.text();
+
+  if (responseText) {
     try {
-      payload = JSON.parse(text);
+      payload = JSON.parse(responseText);
     } catch {
-      payload = { error: text };
+      payload = { error: responseText };
     }
   }
 
   if (!response.ok) {
-    throw new ApiError(payload?.error || 'Server bilan aloqada xatolik yuz berdi.', response.status, payload);
+    throw new ApiError(
+      payload?.error || 'Server bilan aloqada xatolik yuz berdi.',
+      response.status,
+      payload
+    );
   }
 
   return payload as T;
