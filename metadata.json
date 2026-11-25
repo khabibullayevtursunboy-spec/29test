@@ -1,0 +1,6 @@
+{
+  "name": "SCHOOL TEST SYSTEM",
+  "description": "Maktab o‘quvchilari (5–11-sinflar), o‘qituvchilar va administratorlar uchun xavfsiz onlayn test platformasi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
