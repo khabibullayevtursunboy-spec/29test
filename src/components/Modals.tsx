@@ -1,3 +1,4 @@
+
 import { useEffect, useState, type FormEvent } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
@@ -213,42 +214,114 @@ export function TeacherLoginModal({
   onClose: () => void;
   onSuccess: (user: TeacherUser) => void;
 }) {
+  const [mode, setMode] = useState<'login' | 'register'>('login');
+
   const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [classId, setClassId] = useState('');
   const [subjectId, setSubjectId] = useState('');
+
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
 
   useEffect(() => {
-    if (open) {
-      setError('');
-      if (!classId && classes[0]) setClassId(String(classes[0].id));
-      if (!subjectId && subjects[0]) setSubjectId(String(subjects[0].id));
+    if (!open) return;
+
+    setError('');
+    setNotice('');
+
+    if (!classId && classes[0]) {
+      setClassId(String(classes[0].id));
+    }
+
+    if (!subjectId && subjects[0]) {
+      setSubjectId(String(subjects[0].id));
     }
   }, [open, classes, subjects, classId, subjectId]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!fullName.trim() || !classId || !subjectId) {
-      setError('Ismingiz, sinf va faningizni kiriting.');
+    setNotice('');
+
+    const cleanUsername = username.trim().toLowerCase();
+
+    if (!cleanUsername || cleanUsername.length < 3) {
+      setError('Login kamida 3 ta belgidan iborat bo‘lsin.');
       return;
     }
+
+    if (password.length < 8) {
+      setError('Parol kamida 8 ta belgidan iborat bo‘lishi kerak.');
+      return;
+    }
+
+    if (mode === 'register') {
+      if (!fullName.trim()) {
+        setError('Ism va familiyangizni kiriting.');
+        return;
+      }
+
+      if (!classId || !subjectId) {
+        setError('Sinf va fanni tanlang.');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setError('Parollar mos kelmadi.');
+        return;
+      }
+    }
+
     setLoading(true);
+
     try {
-      const data = await apiRequest<{ token: string; user: TeacherUser }>('/api/auth/teacher/login', {
-        method: 'POST',
-        body: JSON.stringify({
-          fullName: fullName.trim(),
-          classId: Number(classId),
-          subjectId: Number(subjectId),
-        }),
-      });
-      setAuthToken(data.token);
-      onSuccess(data.user);
-      onClose();
+      if (mode === 'register') {
+        const data = await apiRequest<{
+          registered: boolean;
+          message: string;
+        }>('/api/auth/teacher/register', {
+          method: 'POST',
+          body: JSON.stringify({
+            fullName: fullName.trim(),
+            username: cleanUsername,
+            password,
+            classId: Number(classId),
+            subjectId: Number(subjectId),
+          }),
+        });
+
+        setNotice(
+          data.message ||
+            'Ro‘yxatdan o‘tildi. Administrator tasdiqlashini kuting.'
+        );
+
+        setMode('login');
+        setPassword('');
+        setConfirmPassword('');
+        setFullName('');
+      } else {
+        const data = await apiRequest<{
+          token: string;
+          user: TeacherUser;
+        }>('/api/auth/teacher/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            username: cleanUsername,
+            password,
+          }),
+        });
+
+        setAuthToken(data.token);
+        onSuccess(data.user);
+        onClose();
+      }
     } catch (err: any) {
-      setError(err?.message || 'Kirishda xatolik yuz berdi.');
+      setError(err?.message || 'Amalni bajarishda xatolik yuz berdi.');
     } finally {
       setLoading(false);
     }
@@ -269,7 +342,7 @@ export function TeacherLoginModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 12 }}
             transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-            className="w-full max-w-md glass-surface-strong rounded-3xl overflow-hidden"
+            className="w-full max-w-md glass-surface-strong rounded-3xl overflow-hidden max-h-[92vh] overflow-y-auto"
           >
             <div className="px-6 py-5 bg-gradient-to-r from-slate-900 via-slate-900 to-sky-950 text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -277,8 +350,10 @@ export function TeacherLoginModal({
                   <GraduationCap className="w-5 h-5 text-sky-300" />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold">O‘qituvchi kirishi</h3>
-                  <p className="text-xs text-slate-300">Ismingiz, sinf va faningizni tanlang</p>
+                  <h3 className="text-base font-semibold">O‘qituvchi paneli</h3>
+                  <p className="text-xs text-slate-300">
+                    Shaxsiy kabinetingizga kiring
+                  </p>
                 </div>
               </div>
               <button
@@ -291,85 +366,214 @@ export function TeacherLoginModal({
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <div className="p-6">
+              <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl mb-5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('login');
+                    setError('');
+                    setNotice('');
+                  }}
+                  className={`py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                    mode === 'login'
+                      ? 'bg-white text-slate-900 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  Kirish
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('register');
+                    setError('');
+                    setNotice('');
+                  }}
+                  className={`py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                    mode === 'register'
+                      ? 'bg-white text-slate-900 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  Ro‘yxatdan o‘tish
+                </button>
+              </div>
+
               {error && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-sm text-rose-700">
+                <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-sm text-rose-700">
                   {error}
                 </div>
               )}
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">Ism va familiya</label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    required
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Masalan: Azizbek Karimov"
-                    className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
-                  />
+              {notice && (
+                <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-sm text-emerald-800">
+                  {notice}
                 </div>
-              </div>
+              )}
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">Sinf</label>
-                <div className="relative">
-                  <Layers className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  <select
-                    required
-                    value={classId}
-                    onChange={(e) => setClassId(e.target.value)}
-                    className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {mode === 'register' && (
+                  <>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                        Ism va familiya
+                      </label>
+                      <div className="relative">
+                        <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          required
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          placeholder="Masalan: Azizbek Karimov"
+                          className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                        Sinf
+                      </label>
+                      <div className="relative">
+                        <Layers className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <select
+                          required
+                          value={classId}
+                          onChange={(e) => setClassId(e.target.value)}
+                          className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
+                        >
+                          <option value="">Sinfni tanlang</option>
+                          {classes.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                        Fan
+                      </label>
+                      <div className="relative">
+                        <BookOpen className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <select
+                          required
+                          value={subjectId}
+                          onChange={(e) => setSubjectId(e.target.value)}
+                          className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
+                        >
+                          <option value="">Fanni tanlang</option>
+                          {subjects.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                    Login
+                  </label>
+                  <div className="relative">
+                    <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      required
+                      autoComplete="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Loginni kiriting"
+                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                    Parol
+                  </label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      autoComplete={
+                        mode === 'login' ? 'current-password' : 'new-password'
+                      }
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Kamida 8 ta belgi"
+                      className="w-full pl-10 pr-10 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((p) => !p)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      aria-label="Parolni ko‘rsatish"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {mode === 'register' && (
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                      Parolni tasdiqlang
+                    </label>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      autoComplete="new-password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Parolni qayta kiriting"
+                      className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
+                    />
+                  </div>
+                )}
+
+                {mode === 'register' && (
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Ro‘yxatdan o‘tganingizdan so‘ng administrator
+                    tasdiqlashini kutishingiz kerak bo‘ladi.
+                  </p>
+                )}
+
+                <div className="pt-2 flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
                   >
-                    <option value="">Sinfni tanlang</option>
-                    {classes.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">Fan</label>
-                <div className="relative">
-                  <BookOpen className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  <select
-                    required
-                    value={subjectId}
-                    onChange={(e) => setSubjectId(e.target.value)}
-                    className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
+                    Bekor qilish
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-sm transition-all disabled:opacity-60"
                   >
-                    <option value="">Fanni tanlang</option>
-                    {subjects.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
+                    {loading
+                      ? 'Kutilmoqda...'
+                      : mode === 'login'
+                        ? 'Panelga kirish'
+                        : 'Ro‘yxatdan o‘tish'}
+                  </button>
                 </div>
-              </div>
-
-              <div className="pt-2 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
-                >
-                  Bekor qilish
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-sm transition-all disabled:opacity-60"
-                >
-                  {loading ? 'Kirilmoqda...' : 'Panelga kirish'}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </motion.div>
         </motion.div>
       )}
@@ -421,11 +625,19 @@ export function AdminLoginModal({
 
     setLoading(true);
     try {
-      const endpoint = configured === false ? '/api/auth/admin/claim' : '/api/auth/admin/login';
-      const data = await apiRequest<{ token: string; user: AdminUser }>(endpoint, {
-        method: 'POST',
-        body: JSON.stringify({ password }),
-      });
+      const endpoint =
+        configured === false
+          ? '/api/auth/admin/claim'
+          : '/api/auth/admin/login';
+
+      const data = await apiRequest<{ token: string; user: AdminUser }>(
+        endpoint,
+        {
+          method: 'POST',
+          body: JSON.stringify({ password }),
+        }
+      );
+
       setAuthToken(data.token);
       onSuccess(data.user);
       onClose();
@@ -460,7 +672,9 @@ export function AdminLoginModal({
                 </div>
                 <div>
                   <h3 className="text-base font-semibold">
-                    {configured === false ? 'Administrator parolini o‘rnatish' : 'Administrator kirishi'}
+                    {configured === false
+                      ? 'Administrator parolini o‘rnatish'
+                      : 'Administrator kirishi'}
                   </h3>
                   <p className="text-xs text-slate-300">
                     {configured === false
@@ -493,7 +707,9 @@ export function AdminLoginModal({
 
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1.5">
-                    {configured === false ? 'Yangi administrator paroli' : 'Administrator paroli'}
+                    {configured === false
+                      ? 'Yangi administrator paroli'
+                      : 'Administrator paroli'}
                   </label>
                   <div className="relative">
                     <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -511,14 +727,20 @@ export function AdminLoginModal({
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                       aria-label="Parolni ko‘rsatish"
                     >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                 </div>
 
                 {configured === false && (
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1.5">Parolni tasdiqlang</label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                      Parolni tasdiqlang
+                    </label>
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
@@ -546,8 +768,8 @@ export function AdminLoginModal({
                     {loading
                       ? 'Saqlanmoqda...'
                       : configured === false
-                      ? 'Saqlash va kirish'
-                      : 'Kirish'}
+                        ? 'Saqlash va kirish'
+                        : 'Kirish'}
                   </button>
                 </div>
               </form>

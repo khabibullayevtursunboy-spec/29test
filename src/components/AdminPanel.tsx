@@ -46,6 +46,7 @@ interface AdminTeacherRow {
   lastName: string;
   fullName: string;
   isActive: boolean;
+  isApproved: boolean;
   subjectNames: string[];
   assignedClasses: string[];
   bio: string;
@@ -124,6 +125,7 @@ export function AdminPanel({
   const [tSubjects, setTSubjects] = useState<string[]>([]);
   const [tClasses, setTClasses] = useState<string[]>([]);
   const [tIsActive, setTIsActive] = useState(true);
+  const [tIsApproved, setTIsApproved] = useState(false);
   const [tError, setTError] = useState('');
 
   // Class & Subject quick add
@@ -226,6 +228,7 @@ export function AdminPanel({
     setTSubjects([]);
     setTClasses([]);
     setTIsActive(true);
+    setTIsApproved(true);
     setTError('');
     setTeacherModalOpen(true);
   };
@@ -241,6 +244,7 @@ export function AdminPanel({
     setTSubjects(t.subjectNames || []);
     setTClasses(t.assignedClasses || []);
     setTIsActive(t.isActive);
+    setTIsApproved(t.isApproved ?? false);
     setTError('');
     setTeacherModalOpen(true);
   };
@@ -248,6 +252,12 @@ export function AdminPanel({
   const handleSaveTeacher = async (e: FormEvent) => {
     e.preventDefault();
     setTError('');
+
+    if (tPassword && tPassword.length < 8) {
+      setTError('Yangi parol kamida 8 ta belgidan iborat bo‘lsin.');
+      return;
+    }
+
     try {
       if (editingTeacher) {
         await apiRequest(`/api/admin/teachers/${editingTeacher.id}`, {
@@ -255,12 +265,13 @@ export function AdminPanel({
           body: JSON.stringify({
             firstName: tFirstName.trim(),
             lastName: tLastName.trim(),
-            password: tPassword || undefined,
+            newPassword: tPassword || undefined,
             phone: tPhone.trim(),
             bio: tBio.trim(),
             subjectNames: tSubjects,
             assignedClasses: tClasses,
             isActive: tIsActive,
+            isApproved: tIsApproved,
           }),
         });
       } else {
@@ -269,12 +280,15 @@ export function AdminPanel({
           body: JSON.stringify({
             username: tUsername.trim(),
             password: tPassword,
+            fullName: `${tFirstName.trim()} ${tLastName.trim()}`.trim(),
             firstName: tFirstName.trim(),
             lastName: tLastName.trim(),
             phone: tPhone.trim(),
             bio: tBio.trim(),
             subjectNames: tSubjects,
             assignedClasses: tClasses,
+            isActive: tIsActive,
+            isApproved: true,
           }),
         });
       }
@@ -629,9 +643,14 @@ export function AdminPanel({
                             </td>
                             <td className="py-3 px-3 text-right font-mono tabular-nums">{t.testCount}</td>
                             <td className="py-3 px-3 text-xs">
-                              <span className={t.isActive ? 'text-emerald-700 font-medium' : 'text-rose-600 font-medium'}>
-                                {t.isActive ? 'Faol' : 'Nofaol'}
-                              </span>
+                              <div className="flex flex-col gap-1">
+                                <span className={t.isActive ? 'text-emerald-700 font-medium' : 'text-rose-600 font-medium'}>
+                                  {t.isActive ? 'Faol' : 'Nofaol'}
+                                </span>
+                                <span className={t.isApproved ? 'text-sky-700 font-medium' : 'text-amber-700 font-medium'}>
+                                  {t.isApproved ? 'Tasdiqlangan' : 'Tasdiq kutilmoqda'}
+                                </span>
+                              </div>
                             </td>
                             <td className="py-3 px-4 text-right">
                               <div className="inline-flex items-center gap-1.5">
@@ -1330,7 +1349,7 @@ export function AdminPanel({
                       type="password"
                       value={settingsNewPass}
                       onChange={(e) => setSettingsNewPass(e.target.value)}
-                      placeholder="Kamida 6 ta belgi"
+                      placeholder="Kamida 8 ta belgi"
                       className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl"
                     />
                   </div>
@@ -1543,16 +1562,26 @@ export function AdminPanel({
                     />
                   </div>
                   {editingTeacher && (
-                    <div className="flex items-center gap-2 pt-5">
-                      <input
-                        id="teacher-active-chk"
-                        type="checkbox"
-                        checked={tIsActive}
-                        onChange={(e) => setTIsActive(e.target.checked)}
-                        className="w-4 h-4 accent-slate-900"
-                      />
-                      <label htmlFor="teacher-active-chk" className="text-sm text-slate-700">
+                    <div className="flex flex-col gap-3 pt-5">
+                      <label className="flex items-center gap-2 text-sm text-slate-700">
+                        <input
+                          id="teacher-active-chk"
+                          type="checkbox"
+                          checked={tIsActive}
+                          onChange={(e) => setTIsActive(e.target.checked)}
+                          className="w-4 h-4 accent-slate-900"
+                        />
                         Hisob faol
+                      </label>
+                      <label className="flex items-center gap-2 text-sm text-slate-700">
+                        <input
+                          id="teacher-approved-chk"
+                          type="checkbox"
+                          checked={tIsApproved}
+                          onChange={(e) => setTIsApproved(e.target.checked)}
+                          className="w-4 h-4 accent-sky-600"
+                        />
+                        Ro‘yxatdan o‘tishi tasdiqlangan
                       </label>
                     </div>
                   )}
