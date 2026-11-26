@@ -338,14 +338,14 @@ export function StudentPortal({
   // =============================================
   if (!student) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-14 space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-7 items-stretch">
           {/* Left Showcase Column */}
           <motion.div
             initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-6 relative rounded-3xl overflow-hidden bg-slate-900 border border-white/20 shadow-[0_24px_60px_-20px_rgba(15,23,42,0.4)] min-h-[340px] lg:min-h-[540px] flex flex-col justify-between p-8 text-white"
+            className="lg:col-span-6 group relative isolate rounded-[2rem] overflow-hidden bg-[#101d42] border border-white/30 shadow-[0_35px_90px_-35px_rgba(20,35,80,.55)] min-h-[390px] lg:min-h-[610px] flex flex-col justify-between p-7 sm:p-9 lg:p-10 text-white"
           >
             {!imgFailed ? (
               <img
@@ -353,12 +353,12 @@ export function StudentPortal({
                 alt="Akademik test muhiti"
                 referrerPolicy="no-referrer"
                 onError={() => setImgFailed(true)}
-                className="absolute inset-0 w-full h-full object-cover opacity-85 scale-[1.02]"
+                className="absolute inset-0 w-full h-full object-cover opacity-80 scale-[1.04] transition-transform duration-1000 group-hover:scale-110"
               />
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950" />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-slate-950/30" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_15%,rgba(80,150,255,.28),transparent_32%),linear-gradient(180deg,rgba(8,18,45,.18)_0%,rgba(8,18,45,.48)_45%,rgba(8,18,45,.96)_100%)]" />\n            <div className="absolute -right-24 top-24 w-72 h-72 rounded-full border border-white/10 shadow-[0_0_90px_rgba(90,150,255,.16)]" />\n            <div className="absolute -right-12 top-36 w-48 h-48 rounded-full border border-white/10" />
 
             <div className="relative z-10 flex items-center justify-between">
               <span className="text-xs font-semibold tracking-wide text-sky-300 px-3 py-1 rounded-xl bg-white/10 backdrop-blur-md border border-white/15">
@@ -404,10 +404,10 @@ export function StudentPortal({
             initial={{ opacity: 0, x: 16 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
-            className="lg:col-span-6 glass-surface-strong rounded-3xl p-6 sm:p-10 flex flex-col justify-center"
+            className="lg:col-span-6 relative glass-surface-strong rounded-[2rem] p-6 sm:p-9 lg:p-11 flex flex-col justify-center border-white/90 shadow-[0_35px_90px_-40px_rgba(29,55,120,.30)]"
           >
             <div className="mb-7">
-              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">O‘quvchi kirishi</h2>
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50/80 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.14em] text-blue-700 mb-4"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,.12)]" /> Xavfsiz kirish</div>\n              <h2 className="text-3xl sm:text-[2.1rem] font-extrabold text-slate-950 tracking-tight">O‘quvchi kabineti</h2>
               <p className="mt-1.5 text-sm text-slate-500">
                 Testni boshlash uchun ism, familiya va sinfingizni kiriting.
               </p>
@@ -486,7 +486,7 @@ export function StudentPortal({
                   whileTap={{ scale: 0.985 }}
                   type="submit"
                   disabled={loginLoading}
-                  className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-sky-900 hover:from-slate-800 hover:to-sky-800 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-slate-900/20 transition-all disabled:opacity-60"
+                  className="w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-[#142653] via-[#2346a5] to-[#3976e8] hover:from-[#1a3268] hover:to-[#2865d5] text-white text-sm font-bold flex items-center justify-center gap-2 shadow-[0_16px_30px_-12px_rgba(40,83,190,.62)] transition-all disabled:opacity-60"
                 >
                   {loginLoading ? (
                     <span>Tekshirilmoqda...</span>
@@ -529,7 +529,7 @@ export function StudentPortal({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + idx * 0.06, duration: 0.3 }}
                 whileHover={{ y: -3 }}
-                className="glass-surface rounded-2xl p-5 flex items-start gap-3.5 transition-shadow hover:shadow-xl"
+                className="glass-surface group rounded-2xl p-5 flex items-start gap-3.5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_45px_-24px_rgba(35,70,150,.35)]"
               >
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500/15 to-indigo-500/15 border border-white/90 text-sky-700 flex items-center justify-center shrink-0">
                   <Icon className="w-4 h-4" />
