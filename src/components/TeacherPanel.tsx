@@ -594,7 +594,7 @@ export function TeacherPanel({
   return (
     <div className="min-h-[calc(100vh-65px)] flex flex-col lg:flex-row">
       {/* Desktop Frosted Glass Sidebar */}
-      <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-white/60 backdrop-blur-2xl border-r border-white/80 p-4 justify-between">
+      <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-white/72 backdrop-blur-2xl border-r border-white/90 p-4 justify-between shadow-[12px_0_45px_-35px_rgba(24,45,100,.35)]">
         <div className="space-y-6">
           <div className="px-3 py-2.5 border-b border-slate-200/60">
             <p className="text-sm font-bold text-slate-900 truncate">{teacherProfile.fullName}</p>
@@ -655,7 +655,7 @@ export function TeacherPanel({
       </aside>
 
       {/* Mobile Top Nav Bar */}
-      <div className="lg:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+      <div className="lg:hidden bg-white/85 backdrop-blur-xl border-b border-white/90 px-4 py-3 flex items-center justify-between shadow-sm">
         <button
           type="button"
           onClick={() => setMobileMenuOpen((v) => !v)}
@@ -675,7 +675,7 @@ export function TeacherPanel({
       </div>
 
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-b border-slate-200 px-4 py-3 grid grid-cols-2 gap-2">
+        <div className="lg:hidden bg-white/85 backdrop-blur-xl border-b border-white/90 px-4 py-3 grid grid-cols-2 gap-2 shadow-sm">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -726,7 +726,7 @@ export function TeacherPanel({
                     resetBuilder();
                     setActiveTab('create');
                   }}
-                  className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold flex items-center gap-2 transition-colors whitespace-nowrap"
+                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#172d67] via-[#254cae] to-[#3976e8] hover:brightness-110 text-white text-sm font-bold flex items-center gap-2 shadow-[0_10px_22px_-12px_rgba(39,80,180,.6)] transition-all whitespace-nowrap"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Yangi test yaratish</span>
@@ -774,7 +774,7 @@ export function TeacherPanel({
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="glass-surface-strong rounded-3xl p-6">
+                    <div className="glass-surface-strong rounded-[1.65rem] p-6 border border-white/90 shadow-[0_22px_55px_-35px_rgba(25,45,100,.3)]">
                       <h3 className="text-base font-semibold text-slate-900 mb-1">
                         Sinflar bo‘yicha o‘rtacha ko‘rsatkich
                       </h3>
@@ -788,7 +788,7 @@ export function TeacherPanel({
                       />
                     </div>
 
-                    <div className="glass-surface-strong rounded-3xl p-6">
+                    <div className="glass-surface-strong rounded-[1.65rem] p-6 border border-white/90 shadow-[0_22px_55px_-35px_rgba(25,45,100,.3)]">
                       <h3 className="text-base font-semibold text-slate-900 mb-1">Baholar taqsimoti</h3>
                       <p className="text-xs text-slate-500 mb-4">Topshirilgan testlar bo‘yicha baholar</p>
                       <GradeDistributionChart grades={gradeCounts} />
@@ -849,7 +849,7 @@ export function TeacherPanel({
               )}
 
               {/* Test Metadata Card */}
-              <div className="glass-surface-strong rounded-3xl p-6 space-y-5">
+              <div className="glass-surface-strong rounded-[1.65rem] p-6 space-y-5 border border-white/90 shadow-[0_22px_55px_-35px_rgba(25,45,100,.3)]">
                 <h3 className="text-base font-semibold text-slate-900">Asosiy ma’lumotlar</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1228,7 +1228,7 @@ export function TeacherPanel({
                     type="button"
                     disabled={saveLoading}
                     onClick={() => handleSaveTest('active')}
-                    className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition-colors disabled:opacity-60"
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#172d67] via-[#254cae] to-[#3976e8] hover:brightness-110 text-white text-sm font-bold shadow-[0_10px_22px_-12px_rgba(39,80,180,.6)] transition-all disabled:opacity-60"
                   >
                     {saveLoading ? 'Saqlanmoqda...' : 'Saqlash va faollashtirish'}
                   </button>
@@ -1260,7 +1260,7 @@ export function TeacherPanel({
                     resetBuilder();
                     setActiveTab('create');
                   }}
-                  className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold flex items-center gap-2"
+                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#172d67] via-[#254cae] to-[#3976e8] hover:brightness-110 text-white text-sm font-bold flex items-center gap-2 shadow-[0_10px_22px_-12px_rgba(39,80,180,.6)]"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Test yaratish</span>
@@ -1285,7 +1285,7 @@ export function TeacherPanel({
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.04 }}
                       whileHover={{ y: -3 }}
-                      className="glass-surface-strong rounded-3xl p-6 space-y-4 transition-shadow hover:shadow-xl"
+                      className="glass-surface-strong rounded-[1.65rem] p-6 space-y-4 border border-white/90 shadow-[0_22px_55px_-35px_rgba(25,45,100,.3)] transition-all hover:-translate-y-0.5 hover:shadow-[0_28px_60px_-32px_rgba(25,45,100,.4)]"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -1395,7 +1395,7 @@ export function TeacherPanel({
                     type="button"
                     disabled={results.length === 0}
                     onClick={() => exportResultsToWord(results, wordExportMeta)}
-                    className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-2 disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#172d67] via-[#254cae] to-[#3976e8] hover:brightness-110 text-white text-xs font-bold flex items-center gap-2 shadow-sm disabled:opacity-50"
                   >
                     <FileText className="w-4 h-4 text-sky-300" />
                     <span>Word (.docx)</span>
@@ -1452,7 +1452,7 @@ export function TeacherPanel({
               </div>
 
               {/* Results Table */}
-              <div className="glass-surface-strong rounded-3xl overflow-hidden">
+              <div className="glass-surface-strong rounded-[1.65rem] overflow-hidden border border-white/90 shadow-[0_22px_55px_-35px_rgba(25,45,100,.3)]">
                 {resultsLoading ? (
                   <div className="p-8 text-center text-sm text-slate-500">Natijalar yuklanmoqda...</div>
                 ) : results.length === 0 ? (
@@ -1586,7 +1586,7 @@ export function TeacherPanel({
                 </div>
               ) : (
                 <>
-                  <div className="glass-surface-strong rounded-3xl overflow-hidden">
+                  <div className="glass-surface-strong rounded-[1.65rem] overflow-hidden border border-white/90 shadow-[0_22px_55px_-35px_rgba(25,45,100,.3)]">
                     <div className="px-6 py-4 border-b border-slate-100">
                       <h3 className="text-base font-semibold text-slate-900">Testlar bo‘yicha natijalar</h3>
                     </div>
@@ -1685,7 +1685,7 @@ export function TeacherPanel({
                 </p>
               </div>
 
-              <div className="glass-surface-strong rounded-3xl overflow-hidden">
+              <div className="glass-surface-strong rounded-[1.65rem] overflow-hidden border border-white/90 shadow-[0_22px_55px_-35px_rgba(25,45,100,.3)]">
                 {violationsLoading ? (
                   <div className="p-8 text-center text-sm text-slate-500">Yuklanmoqda...</div>
                 ) : violations.length === 0 ? (
