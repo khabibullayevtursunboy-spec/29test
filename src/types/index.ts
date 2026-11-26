@@ -144,7 +144,7 @@ export interface TestResultRow {
   class_id: number;
   class_name: string;
   test_title: string;
-  subject_id?: number;
+  subject_id: number;
   subject_name: string;
   teacher_name?: string;
   violation_count: number;

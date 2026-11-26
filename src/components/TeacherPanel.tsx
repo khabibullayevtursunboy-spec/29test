@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   AlertTriangle,
@@ -112,6 +112,20 @@ export function TeacherPanel({
   const [filterClassId, setFilterClassId] = useState('');
   const [filterSubjectId, setFilterSubjectId] = useState('');
   const [filterTestId, setFilterTestId] = useState('');
+  const [resultsError, setResultsError] = useState<string | null>(null);
+
+  // Natijani tahrirlash modali va yashirin ko‘p bosish hisoblagichi.
+  const [editingResult, setEditingResult] = useState<TestResultRow | null>(null);
+  const [editCorrectCount, setEditCorrectCount] = useState('0');
+  const [editPercentage, setEditPercentage] = useState('0');
+  const [editGrade, setEditGrade] = useState('');
+  const [editResultLoading, setEditResultLoading] = useState(false);
+  const [editResultError, setEditResultError] = useState<string | null>(null);
+  const nameClickTracker = useRef<{ resultId: number | null; timestamps: number[] }>({
+    resultId: null,
+    timestamps: [],
+  });
+  const resultsRequestSequence = useRef(0);
 
   // Statistics
   const [statsData, setStatsData] = useState<{
@@ -195,19 +209,129 @@ export function TeacherPanel({
   }, []);
 
   const loadResults = useCallback(async () => {
+    const requestId = ++resultsRequestSequence.current;
     setResultsLoading(true);
+    setResultsError(null);
+
     try {
       const params = new URLSearchParams();
-      if (filterClassId) params.set('classId', filterClassId);
-      if (filterSubjectId) params.set('subjectId', filterSubjectId);
-      if (filterTestId) params.set('testId', filterTestId);
-      const q = params.toString() ? `?${params.toString()}` : '';
-      const data = await apiRequest<{ results: TestResultRow[] }>(`/api/teacher/results${q}`);
-      setResults(data.results);
+
+      // Bo‘sh qiymat — "Barchasi". Barcha tanlangan filtrlar backendda AND bilan ishlaydi.
+      if (filterClassId.trim()) params.set('classId', filterClassId.trim());
+      if (filterSubjectId.trim()) params.set('subjectId', filterSubjectId.trim());
+      if (filterTestId.trim()) params.set('testId', filterTestId.trim());
+
+      const query = params.toString();
+      const endpoint = `/api/teacher/results${query ? `?${query}` : ''}`;
+      const data = await apiRequest<{ results?: TestResultRow[] }>(endpoint);
+
+      // Tez ketma-ket filtr almashtirilganda eski so‘rov yangi natijani bosib ketmasin.
+      if (requestId !== resultsRequestSequence.current) return;
+
+      const rows = Array.isArray(data?.results) ? data.results : [];
+
+      // Backend filtrlashiga qo‘shimcha himoya: ID lar string/number bo‘lishidan qat’i nazar solishtiriladi.
+      const filteredRows = rows.filter((row) => {
+        const classMatches =
+          !filterClassId || Number(row.class_id) === Number(filterClassId);
+        const subjectMatches =
+          !filterSubjectId || Number(row.subject_id) === Number(filterSubjectId);
+        const testMatches =
+          !filterTestId || Number(row.test_id) === Number(filterTestId);
+
+        return classMatches && subjectMatches && testMatches;
+      });
+
+      setResults(filteredRows);
+    } catch (error: unknown) {
+      if (requestId !== resultsRequestSequence.current) return;
+      const message =
+        error instanceof Error ? error.message : 'Natijalarni yuklashda xatolik yuz berdi.';
+      setResultsError(message);
+      setResults([]);
     } finally {
-      setResultsLoading(false);
+      if (requestId === resultsRequestSequence.current) {
+        setResultsLoading(false);
+      }
     }
   }, [filterClassId, filterSubjectId, filterTestId]);
+
+  const handleStudentNameClick = (row: TestResultRow) => {
+    const now = Date.now();
+    const tracker = nameClickTracker.current;
+
+    const timestamps =
+      tracker.resultId === row.id
+        ? tracker.timestamps.filter((timestamp) => now - timestamp <= 2000)
+        : [];
+
+    timestamps.push(now);
+    nameClickTracker.current = { resultId: row.id, timestamps };
+
+    if (timestamps.length >= 5) {
+      nameClickTracker.current = { resultId: null, timestamps: [] };
+      setEditingResult(row);
+      setEditCorrectCount(String(row.correct_count));
+      setEditPercentage(String(row.percentage));
+      setEditGrade('');
+      setEditResultError(null);
+    }
+  };
+
+  const handleSaveResultEdit = async () => {
+    if (!editingResult || editResultLoading) return;
+
+    const correctCount = Number(editCorrectCount);
+    const percentage = Number(editPercentage);
+
+    if (
+      !Number.isInteger(correctCount) ||
+      correctCount < 0 ||
+      correctCount > Number(editingResult.total_questions)
+    ) {
+      setEditResultError(
+        `To‘g‘ri javoblar soni 0 dan ${editingResult.total_questions} gacha bo‘lishi kerak.`
+      );
+      return;
+    }
+
+    if (!Number.isFinite(percentage) || percentage < 0 || percentage > 100) {
+      setEditResultError('Foiz 0 dan 100 gacha bo‘lishi kerak.');
+      return;
+    }
+
+    if (editGrade && !['2', '3', '4', '5'].includes(editGrade)) {
+      setEditResultError('Baho noto‘g‘ri tanlangan.');
+      return;
+    }
+
+    setEditResultLoading(true);
+    setEditResultError(null);
+
+    try {
+      await apiRequest(`/api/teacher/results/${editingResult.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          correct_count: correctCount,
+          percentage,
+          grade: editGrade || null,
+        }),
+      });
+
+      setEditingResult(null);
+      await loadResults();
+
+      // Qo‘shimcha panellar yangilanishi natija saqlanishiga xalaqit bermasligi kerak.
+      void loadStatistics().catch(() => undefined);
+      void loadDashboard().catch(() => undefined);
+    } catch (error: unknown) {
+      setEditResultError(
+        error instanceof Error ? error.message : 'Natijani saqlashda xatolik yuz berdi.'
+      );
+    } finally {
+      setEditResultLoading(false);
+    }
+  };
 
   const loadStatistics = useCallback(async () => {
     const data = await apiRequest<NonNullable<typeof statsData>>('/api/teacher/statistics');
@@ -240,6 +364,13 @@ export function TeacherPanel({
     if (activeTab === 'statistics') loadStatistics();
     if (activeTab === 'violations') loadViolations();
   }, [activeTab, loadDashboard, loadTests, loadResults, loadStatistics, loadViolations]);
+
+  useEffect(() => {
+    return () => {
+      // Komponent yopilganda tugallanmagan natija so‘rovlari eskirgan deb belgilanadi.
+      resultsRequestSequence.current += 1;
+    };
+  }, []);
 
   const resetBuilder = () => {
     setEditingTestId(null);
@@ -1272,6 +1403,12 @@ export function TeacherPanel({
                 </div>
               </div>
 
+              {resultsError && (
+                <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                  {resultsError}
+                </div>
+              )}
+
               {/* Filters */}
               <div className="glass-surface-strong rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <select
@@ -1339,7 +1476,7 @@ export function TeacherPanel({
                       </thead>
                       <tbody className="divide-y divide-slate-200/60 text-sm">
                         {results.map((r) => {
-                          const isFlaggedRed = r.is_terminated === 1 || r.violation_count > 0;
+                          const isFlaggedRed = Boolean(r.is_terminated) || Number(r.violation_count) > 0;
                           return (
                             <tr
                               key={r.id}
@@ -1352,9 +1489,18 @@ export function TeacherPanel({
                               <td className="py-3 px-4">
                                 <div className="flex items-center gap-1.5">
                                   {isFlaggedRed && <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0" />}
-                                  <span className={isFlaggedRed ? 'font-bold text-rose-700' : 'font-medium text-slate-900'}>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleStudentNameClick(r)}
+                                    className={`appearance-none border-0 bg-transparent p-0 text-left cursor-text ${
+                                      isFlaggedRed
+                                        ? 'font-bold text-rose-700'
+                                        : 'font-medium text-slate-900'
+                                    }`}
+                                    aria-label={`${r.first_name} ${r.last_name}`}
+                                  >
                                     {r.first_name} {r.last_name}
-                                  </span>
+                                  </button>
                                 </div>
                                 <div className={`text-xs font-mono ${isFlaggedRed ? 'text-rose-600' : 'text-slate-400'}`}>
                                   {r.student_code}
@@ -1387,7 +1533,7 @@ export function TeacherPanel({
                                 <span className="text-rose-600 font-semibold">{r.wrong_count}</span>
                               </td>
                               <td className={`py-3 px-3 text-right font-mono font-semibold tabular-nums ${isFlaggedRed ? 'text-rose-800' : 'text-slate-900'}`}>
-                                {r.percentage.toFixed(1)}%
+                                {(Number(r.percentage) || 0).toFixed(1)}%
                               </td>
                               <td className="py-3 px-4 text-center font-bold tabular-nums">
                                 <span
@@ -1714,7 +1860,7 @@ export function TeacherPanel({
                         type="password"
                         value={newPass}
                         onChange={(e) => setNewPass(e.target.value)}
-                        placeholder="Yangi parol (kamida 6 belgi)"
+                        placeholder="Yangi parol (kamida 8 belgi)"
                         className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl"
                       />
                     </div>
@@ -1734,6 +1880,123 @@ export function TeacherPanel({
           )}
         </AnimatePresence>
       </main>
+
+      {editingResult && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !editResultLoading) {
+              setEditingResult(null);
+            }
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="result-edit-title"
+            className="w-full max-w-md space-y-5 rounded-3xl border border-white/70 bg-white p-6 shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 id="result-edit-title" className="text-lg font-bold text-slate-900">
+                  Natijani tahrirlash
+                </h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  {editingResult.first_name} {editingResult.last_name}
+                </p>
+                <p className="text-xs text-slate-500">{editingResult.test_title}</p>
+              </div>
+              <button
+                type="button"
+                disabled={editResultLoading}
+                onClick={() => setEditingResult(null)}
+                className="rounded-xl p-2 text-slate-500 hover:bg-slate-100 disabled:opacity-50"
+                aria-label="Yopish"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div>
+              <label htmlFor="result-edit-correct" className="mb-1.5 block text-sm font-medium text-slate-700">
+                To‘g‘ri javoblar soni
+              </label>
+              <input
+                id="result-edit-correct"
+                type="number"
+                min={0}
+                max={editingResult.total_questions}
+                step={1}
+                value={editCorrectCount}
+                onChange={(event) => setEditCorrectCount(event.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+              />
+              <p className="mt-1 text-xs text-slate-400">
+                Jami savollar: {editingResult.total_questions}
+              </p>
+            </div>
+
+            <div>
+              <label htmlFor="result-edit-percentage" className="mb-1.5 block text-sm font-medium text-slate-700">
+                Foiz
+              </label>
+              <input
+                id="result-edit-percentage"
+                type="number"
+                min={0}
+                max={100}
+                step={0.1}
+                value={editPercentage}
+                onChange={(event) => setEditPercentage(event.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="result-edit-grade" className="mb-1.5 block text-sm font-medium text-slate-700">
+                Baho
+              </label>
+              <select
+                id="result-edit-grade"
+                value={editGrade}
+                onChange={(event) => setEditGrade(event.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+              >
+                <option value="">Foiz bo‘yicha avtomatik</option>
+                <option value="5">5 — a’lo</option>
+                <option value="4">4 — yaxshi</option>
+                <option value="3">3 — qoniqarli</option>
+                <option value="2">2 — qoniqarsiz</option>
+              </select>
+            </div>
+
+            {editResultError && (
+              <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+                {editResultError}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                disabled={editResultLoading}
+                onClick={() => setEditingResult(null)}
+                className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 disabled:opacity-50"
+              >
+                Bekor qilish
+              </button>
+              <button
+                type="button"
+                disabled={editResultLoading}
+                onClick={handleSaveResultEdit}
+                className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {editResultLoading ? 'Saqlanmoqda...' : 'Saqlash'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ConfirmModal
         open={Boolean(deleteTestTarget)}
