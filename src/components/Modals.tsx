@@ -53,7 +53,7 @@ export function ConfirmModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 12 }}
             transition={{ type: 'spring', stiffness: 320, damping: 26 }}
-            className="w-full max-w-md glass-surface-strong rounded-3xl p-6"
+            className="w-full max-w-md glass-surface-strong rounded-[1.75rem] p-6 sm:p-7 border border-white/90 shadow-[0_35px_100px_-35px_rgba(10,25,65,.5)]"
           >
             <div className="flex items-start gap-3.5">
               <div
@@ -126,9 +126,9 @@ export function RoleChoiceModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 12 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="w-full max-w-lg glass-surface-strong rounded-3xl overflow-hidden"
+            className="w-full max-w-lg glass-surface-strong rounded-[1.9rem] overflow-hidden border border-white/90 shadow-[0_35px_100px_-35px_rgba(10,25,65,.5)]"
           >
-            <div className="px-6 py-5 bg-gradient-to-r from-slate-900 via-indigo-950 to-sky-950 text-white flex items-center justify-between">
+            <div className="relative px-6 py-6 sm:px-7 bg-gradient-to-br from-[#101d42] via-[#1d3474] to-[#2858b8] text-white flex items-center justify-between overflow-hidden before:absolute before:-right-12 before:-top-24 before:w-64 before:h-64 before:rounded-full before:border before:border-white/10 before:shadow-[0_0_70px_rgba(115,170,255,.2)]">
               <div>
                 <h3 className="text-xl font-bold tracking-tight">Xush kelibsiz!</h3>
                 <p className="text-xs text-sky-200/90 mt-0.5">
@@ -154,7 +154,7 @@ export function RoleChoiceModal({
                   onClose();
                   onSelectTeacher();
                 }}
-                className="group text-left p-5 rounded-2xl bg-white/70 hover:bg-white/95 border border-white/90 hover:border-sky-300/80 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between gap-4"
+                className="group text-left p-5 sm:p-6 rounded-[1.4rem] bg-white/75 hover:bg-white border border-white/90 hover:border-blue-200 shadow-[0_12px_32px_-22px_rgba(20,40,90,.35)] hover:shadow-[0_22px_45px_-22px_rgba(35,70,150,.32)] transition-all flex flex-col justify-between gap-5"
               >
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-500/20 to-indigo-500/20 border border-sky-200/80 text-sky-700 flex items-center justify-center group-hover:scale-105 transition-transform">
                   <GraduationCap className="w-6 h-6" />
@@ -178,7 +178,7 @@ export function RoleChoiceModal({
                   onClose();
                   onSelectAdmin();
                 }}
-                className="group text-left p-5 rounded-2xl bg-white/70 hover:bg-white/95 border border-white/90 hover:border-indigo-300/80 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between gap-4"
+                className="group text-left p-5 sm:p-6 rounded-[1.4rem] bg-white/75 hover:bg-white border border-white/90 hover:border-indigo-200 shadow-[0_12px_32px_-22px_rgba(20,40,90,.35)] hover:shadow-[0_22px_45px_-22px_rgba(35,70,150,.32)] transition-all flex flex-col justify-between gap-5"
               >
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 border border-indigo-200/80 text-indigo-700 flex items-center justify-center group-hover:scale-105 transition-transform">
                   <ShieldCheck className="w-6 h-6" />
@@ -342,9 +342,9 @@ export function TeacherLoginModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 12 }}
             transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-            className="w-full max-w-md glass-surface-strong rounded-3xl overflow-hidden max-h-[92vh] overflow-y-auto"
+            className="w-full max-w-md glass-surface-strong rounded-[1.9rem] overflow-hidden max-h-[92vh] overflow-y-auto border border-white/90 shadow-[0_35px_100px_-35px_rgba(10,25,65,.5)]"
           >
-            <div className="px-6 py-5 bg-gradient-to-r from-slate-900 via-slate-900 to-sky-950 text-white flex items-center justify-between">
+            <div className="relative px-6 py-6 sm:px-7 bg-gradient-to-br from-[#101d42] via-[#1d3474] to-[#2858b8] text-white flex items-center justify-between overflow-hidden before:absolute before:-right-12 before:-top-24 before:w-64 before:h-64 before:rounded-full before:border before:border-white/10 before:shadow-[0_0_70px_rgba(115,170,255,.2)]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center">
                   <GraduationCap className="w-5 h-5 text-sky-300" />
@@ -367,7 +367,7 @@ export function TeacherLoginModal({
             </div>
 
             <div className="p-6">
-              <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl mb-5">
+              <div className="grid grid-cols-2 gap-1.5 p-1.5 bg-slate-100/80 border border-slate-200/70 rounded-2xl mb-6">
                 <button
                   type="button"
                   onClick={() => {
@@ -377,7 +377,7 @@ export function TeacherLoginModal({
                   }}
                   className={`py-2.5 rounded-lg text-sm font-semibold transition-all ${
                     mode === 'login'
-                      ? 'bg-white text-slate-900 shadow-sm'
+                      ? 'bg-white text-[#1b3478] shadow-[0_5px_16px_-7px_rgba(25,55,125,.35)] ring-1 ring-white'
                       : 'text-slate-500 hover:text-slate-800'
                   }`}
                 >
@@ -392,7 +392,7 @@ export function TeacherLoginModal({
                   }}
                   className={`py-2.5 rounded-lg text-sm font-semibold transition-all ${
                     mode === 'register'
-                      ? 'bg-white text-slate-900 shadow-sm'
+                      ? 'bg-white text-[#1b3478] shadow-[0_5px_16px_-7px_rgba(25,55,125,.35)] ring-1 ring-white'
                       : 'text-slate-500 hover:text-slate-800'
                   }`}
                 >
@@ -427,7 +427,7 @@ export function TeacherLoginModal({
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
                           placeholder="Masalan: Azizbek Karimov"
-                          className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
+                          className="w-full pl-10 pr-3.5 py-3 text-sm bg-slate-50/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                         />
                       </div>
                     </div>
@@ -442,7 +442,7 @@ export function TeacherLoginModal({
                           required
                           value={classId}
                           onChange={(e) => setClassId(e.target.value)}
-                          className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
+                          className="w-full pl-10 pr-3.5 py-3 text-sm bg-slate-50/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                         >
                           <option value="">Sinfni tanlang</option>
                           {classes.map((c) => (
@@ -464,7 +464,7 @@ export function TeacherLoginModal({
                           required
                           value={subjectId}
                           onChange={(e) => setSubjectId(e.target.value)}
-                          className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
+                          className="w-full pl-10 pr-3.5 py-3 text-sm bg-slate-50/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                         >
                           <option value="">Fanni tanlang</option>
                           {subjects.map((s) => (
@@ -491,7 +491,7 @@ export function TeacherLoginModal({
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Loginni kiriting"
-                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
+                      className="w-full pl-10 pr-3.5 py-3 text-sm bg-slate-50/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                     />
                   </div>
                 </div>
@@ -511,7 +511,7 @@ export function TeacherLoginModal({
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Kamida 8 ta belgi"
-                      className="w-full pl-10 pr-10 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
+                      className="w-full pl-10 pr-10 py-3 text-sm bg-slate-50/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                     />
                     <button
                       type="button"
@@ -540,7 +540,7 @@ export function TeacherLoginModal({
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Parolni qayta kiriting"
-                      className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors"
+                      className="w-full px-3.5 py-3 text-sm bg-slate-50/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                     />
                   </div>
                 )}
@@ -563,7 +563,7 @@ export function TeacherLoginModal({
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-sm transition-all disabled:opacity-60"
+                    className="px-5 py-3 text-sm font-bold text-white bg-gradient-to-r from-[#172d67] via-[#254cae] to-[#3976e8] hover:brightness-110 rounded-xl shadow-[0_12px_24px_-10px_rgba(39,80,180,.55)] transition-all disabled:opacity-60"
                   >
                     {loading
                       ? 'Kutilmoqda...'
@@ -663,9 +663,9 @@ export function AdminLoginModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 12 }}
             transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-            className="w-full max-w-md glass-surface-strong rounded-3xl overflow-hidden"
+            className="w-full max-w-md glass-surface-strong rounded-[1.9rem] overflow-hidden border border-white/90 shadow-[0_35px_100px_-35px_rgba(10,25,65,.5)]"
           >
-            <div className="px-6 py-5 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex items-center justify-between">
+            <div className="relative px-6 py-6 sm:px-7 bg-gradient-to-br from-[#101d42] via-[#1d3474] to-[#2858b8] text-white flex items-center justify-between overflow-hidden before:absolute before:-right-12 before:-top-24 before:w-64 before:h-64 before:rounded-full before:border before:border-white/10 before:shadow-[0_0_70px_rgba(115,170,255,.2)]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center">
                   <ShieldCheck className="w-5 h-5 text-indigo-300" />
@@ -763,7 +763,7 @@ export function AdminLoginModal({
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-colors disabled:opacity-60"
+                    className="px-5 py-3 text-sm font-bold text-white bg-gradient-to-r from-[#172d67] via-[#254cae] to-[#3976e8] hover:brightness-110 rounded-xl shadow-[0_12px_24px_-10px_rgba(39,80,180,.55)] transition-all disabled:opacity-60"
                   >
                     {loading
                       ? 'Saqlanmoqda...'
