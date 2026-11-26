@@ -397,7 +397,7 @@ export function AdminPanel({
   return (
     <div className="min-h-[calc(100vh-65px)] flex flex-col lg:flex-row">
       {/* Desktop Frosted Dark Glass Sidebar */}
-      <aside className="hidden lg:flex w-64 shrink-0 flex-col glass-dark text-slate-200 p-4 justify-between">
+      <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-gradient-to-b from-[#101d42] via-[#172b60] to-[#1c397c] text-slate-200 p-4 justify-between shadow-[18px_0_55px_-35px_rgba(10,25,65,.6)] border-r border-white/10">
         <div className="space-y-6">
           <div className="px-3 py-2 border-b border-white/10 flex items-center gap-2.5">
             <ShieldCheck className="w-5 h-5 text-indigo-300 shrink-0" />
@@ -439,7 +439,7 @@ export function AdminPanel({
       </aside>
 
       {/* Mobile Header */}
-      <div className="lg:hidden bg-slate-900 text-white px-4 py-3 flex items-center justify-between">
+      <div className="lg:hidden bg-gradient-to-r from-[#101d42] to-[#2858b8] text-white px-4 py-3 flex items-center justify-between shadow-lg shadow-blue-950/10">
         <button
           type="button"
           onClick={() => setMobileMenuOpen((v) => !v)}
@@ -455,7 +455,7 @@ export function AdminPanel({
       </div>
 
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-slate-900 border-t border-slate-800 px-4 py-3 grid grid-cols-2 gap-2">
+        <div className="lg:hidden bg-[#172b60] border-t border-white/10 px-4 py-3 grid grid-cols-2 gap-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -547,7 +547,7 @@ export function AdminPanel({
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="glass-surface-strong rounded-3xl p-6">
+                    <div className="glass-surface-strong rounded-[1.65rem] p-6 border border-white/90 shadow-[0_22px_55px_-35px_rgba(25,45,100,.3)]">
                       <h3 className="text-base font-semibold text-slate-900 mb-4">Fanlar bo‘yicha testlar soni</h3>
                       <ClassBarChart
                         unit=" ta"
@@ -558,7 +558,7 @@ export function AdminPanel({
                       />
                     </div>
 
-                    <div className="glass-surface-strong rounded-3xl p-6">
+                    <div className="glass-surface-strong rounded-[1.65rem] p-6 border border-white/90 shadow-[0_22px_55px_-35px_rgba(25,45,100,.3)]">
                       <h3 className="text-base font-semibold text-slate-900 mb-4">So‘nggi tizim faoliyati</h3>
                       {dash.recentActivity.length === 0 ? (
                         <p className="text-sm text-slate-400">Hali faoliyat qayd etilmagan.</p>
@@ -604,14 +604,14 @@ export function AdminPanel({
                 <button
                   type="button"
                   onClick={openAddTeacher}
-                  className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold flex items-center gap-2"
+                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#172d67] via-[#254cae] to-[#3976e8] hover:brightness-110 text-white text-sm font-bold flex items-center gap-2 shadow-[0_10px_22px_-12px_rgba(39,80,180,.6)]"
                 >
                   <Plus className="w-4 h-4" />
                   <span>O‘qituvchi qo‘shish</span>
                 </button>
               </div>
 
-              <div className="glass-surface-strong rounded-3xl overflow-hidden">
+              <div className="glass-surface-strong rounded-[1.65rem] overflow-hidden border border-white/90 shadow-[0_22px_55px_-35px_rgba(25,45,100,.3)]">
                 {teachers.length === 0 ? (
                   <div className="p-12 text-center text-sm text-slate-500">
                     Hozircha o‘qituvchilar qo‘shilmagan. Birinchi o‘qituvchini yarating.
@@ -712,7 +712,7 @@ export function AdminPanel({
                 </p>
               </div>
 
-              <div className="glass-surface-strong rounded-3xl overflow-hidden">
+              <div className="glass-surface-strong rounded-[1.65rem] overflow-hidden border border-white/90 shadow-[0_22px_55px_-35px_rgba(25,45,100,.3)]">
                 {tests.length === 0 ? (
                   <div className="p-12 text-center text-sm text-slate-500">Tizimda hali testlar mavjud emas.</div>
                 ) : (
@@ -874,7 +874,7 @@ export function AdminPanel({
                         testTitle: 'Maktab bo‘yicha umumiy natijalar',
                       })
                     }
-                    className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-2 disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#172d67] via-[#254cae] to-[#3976e8] hover:brightness-110 text-white text-xs font-bold flex items-center gap-2 shadow-sm disabled:opacity-50"
                   >
                     <FileText className="w-4 h-4 text-sky-300" />
                     <span>Word (.docx)</span>
@@ -921,7 +921,7 @@ export function AdminPanel({
                 </select>
               </div>
 
-              <div className="glass-surface-strong rounded-3xl overflow-hidden">
+              <div className="glass-surface-strong rounded-[1.65rem] overflow-hidden border border-white/90 shadow-[0_22px_55px_-35px_rgba(25,45,100,.3)]">
                 {results.length === 0 ? (
                   <div className="p-12 text-center text-sm text-slate-500">Natijalar topilmadi.</div>
                 ) : (
@@ -1037,7 +1037,7 @@ export function AdminPanel({
                 </div>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#172d67] via-[#254cae] to-[#3976e8] hover:brightness-110 text-white text-sm font-bold shadow-sm"
                 >
                   Sinf qo‘shish
                 </button>
@@ -1139,7 +1139,7 @@ export function AdminPanel({
                 </div>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#172d67] via-[#254cae] to-[#3976e8] hover:brightness-110 text-white text-sm font-bold shadow-sm"
                 >
                   Fan qo‘shish
                 </button>
@@ -1210,7 +1210,7 @@ export function AdminPanel({
                 <p className="text-sm text-slate-500 mt-0.5">Ro‘yxatdan o‘tgan o‘quvchilar va ularning identifikatsiya kodlari</p>
               </div>
 
-              <div className="glass-surface-strong rounded-3xl overflow-hidden">
+              <div className="glass-surface-strong rounded-[1.65rem] overflow-hidden border border-white/90 shadow-[0_22px_55px_-35px_rgba(25,45,100,.3)]">
                 {students.length === 0 ? (
                   <div className="p-12 text-center text-sm text-slate-500">Hali o‘quvchilar tizimga kirmagan.</div>
                 ) : (
@@ -1356,14 +1356,14 @@ export function AdminPanel({
                 )}
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold"
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#172d67] via-[#254cae] to-[#3976e8] hover:brightness-110 text-white text-sm font-bold shadow-[0_10px_22px_-12px_rgba(39,80,180,.6)]"
                 >
                   Sozlamalarni saqlash
                 </button>
               </form>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="glass-surface-strong rounded-3xl p-6">
+                <div className="glass-surface-strong rounded-[1.65rem] p-6 border border-white/90 shadow-[0_22px_55px_-35px_rgba(25,45,100,.3)]">
                   <h3 className="text-base font-semibold text-slate-900 mb-4">Tizim hodisalari jurnali</h3>
                   <div className="divide-y divide-slate-100 max-h-96 overflow-y-auto">
                     {activityLogs.length === 0 ? (
@@ -1385,7 +1385,7 @@ export function AdminPanel({
                   </div>
                 </div>
 
-                <div className="glass-surface-strong rounded-3xl p-6">
+                <div className="glass-surface-strong rounded-[1.65rem] p-6 border border-white/90 shadow-[0_22px_55px_-35px_rgba(25,45,100,.3)]">
                   <h3 className="text-base font-semibold text-slate-900 mb-4">Test nazorati ogohlantirishlari</h3>
                   <div className="divide-y divide-slate-100 max-h-96 overflow-y-auto">
                     {violationLogs.length === 0 ? (
@@ -1597,7 +1597,7 @@ export function AdminPanel({
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold"
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#172d67] via-[#254cae] to-[#3976e8] hover:brightness-110 text-white text-sm font-bold shadow-[0_10px_22px_-12px_rgba(39,80,180,.6)]"
                   >
                     Saqlash
                   </button>
