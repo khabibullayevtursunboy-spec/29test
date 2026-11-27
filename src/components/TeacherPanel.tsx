@@ -10,6 +10,8 @@ import {
   Edit3,
   FileSpreadsheet,
   FileText,
+  FileUp,
+  Sparkles,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -105,6 +107,11 @@ export function TeacherPanel({
   const [questions, setQuestions] = useState<TeacherQuestionDraft[]>([emptyQuestion()]);
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+  const [wordFile, setWordFile] = useState<File | null>(null);
+  const [wordImportLoading, setWordImportLoading] = useState(false);
+  const [wordImportError, setWordImportError] = useState<string | null>(null);
+  const [wordImportWarnings, setWordImportWarnings] = useState<string[]>([]);
+  const wordInputRef = useRef<HTMLInputElement | null>(null);
 
   // Results
   const [results, setResults] = useState<TestResultRow[]>([]);
@@ -434,6 +441,35 @@ export function TeacherPanel({
       setActiveTab('create');
     } catch (err: any) {
       setSaveMessage({ type: 'err', text: err?.message || 'Testni yuklab bo‘lmadi.' });
+    }
+  };
+
+
+  const handleWordImport = async () => {
+    if (!wordFile || wordImportLoading) return;
+    setWordImportLoading(true);
+    setWordImportError(null);
+    setWordImportWarnings([]);
+    try {
+      const formData = new FormData();
+      formData.append('file', wordFile);
+      const result = await apiRequest<{
+        title: string;
+        questions: TeacherQuestionDraft[];
+        warnings: string[];
+        count: number;
+      }>('/api/teacher/import-word', { method: 'POST', body: formData });
+      setQuestions(result.questions);
+      if (!testTitle.trim() && result.title) setTestTitle(result.title);
+      setWordImportWarnings(result.warnings || []);
+      setSaveMessage({
+        type: 'ok',
+        text: `${result.count} ta savol ajratildi. Endi savollarni tekshirib, kerak bo‘lsa tahrirlang.`,
+      });
+    } catch (error: unknown) {
+      setWordImportError(error instanceof Error ? error.message : 'Word faylni tahlil qilishda xatolik yuz berdi.');
+    } finally {
+      setWordImportLoading(false);
     }
   };
 
@@ -846,6 +882,72 @@ export function TeacherPanel({
                   )}
                   <span>{saveMessage.text}</span>
                 </div>
+              )}
+
+
+              {/* AI Word import */}
+              {!editingTestId && (
+                <section className="relative overflow-hidden rounded-[1.65rem] border border-indigo-200/70 bg-gradient-to-br from-[#101d43] via-[#1c3472] to-[#315fc0] p-5 sm:p-6 text-white shadow-[0_24px_60px_-32px_rgba(30,64,175,.65)]">
+                  <div className="pointer-events-none absolute -right-12 -top-16 h-48 w-48 rounded-full border border-white/10" />
+                  <div className="pointer-events-none absolute -right-5 -top-8 h-32 w-32 rounded-full border border-white/10" />
+                  <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="max-w-xl">
+                      <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[.16em] text-blue-100">
+                        <Sparkles className="h-3.5 w-3.5" /> AI yordamida
+                      </div>
+                      <h2 className="text-xl font-bold sm:text-2xl">Word fayldan test yaratish</h2>
+                      <p className="mt-1.5 text-sm leading-6 text-blue-100/85">
+                        Tayyor .docx hujjatingizni yuklang. AI savollar va variantlarni ajratadi, siz esa ularni tekshirib tasdiqlaysiz.
+                      </p>
+                    </div>
+                    <div className="flex w-full flex-col gap-2 lg:max-w-sm">
+                      <input
+                        ref={wordInputRef}
+                        type="file"
+                        accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        className="hidden"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0] || null;
+                          setWordFile(file);
+                          setWordImportError(null);
+                          setWordImportWarnings([]);
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => wordInputRef.current?.click()}
+                        className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/15"
+                      >
+                        <FileUp className="h-4 w-4" />
+                        {wordFile ? wordFile.name : 'Word faylni tanlash'}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={!wordFile || wordImportLoading}
+                        onClick={handleWordImport}
+                        className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-bold text-[#18336f] shadow-lg transition hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {wordImportLoading ? (
+                          <><span className="h-4 w-4 animate-spin rounded-full border-2 border-blue-900/25 border-t-blue-900" /> Hujjat tahlil qilinmoqda...</>
+                        ) : (
+                          <><Sparkles className="h-4 w-4" /> AI bilan testlarni ajratish</>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="relative mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-blue-100/75">
+                    <span>DOCX format</span><span>•</span><span>15 MB gacha</span><span>•</span><span>80 tagacha savol</span><span>•</span><span>Avval ko‘rib chiqish, keyin saqlash</span>
+                  </div>
+                  {wordImportError && (
+                    <p className="relative mt-3 rounded-xl border border-rose-300/30 bg-rose-400/15 px-3 py-2 text-xs text-rose-100">{wordImportError}</p>
+                  )}
+                  {wordImportWarnings.length > 0 && (
+                    <div className="relative mt-3 rounded-xl border border-amber-200/25 bg-amber-300/10 p-3 text-xs text-amber-100">
+                      <p className="mb-1 font-bold">Tekshirish kerak:</p>
+                      <ul className="list-disc space-y-1 pl-4">{wordImportWarnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul>
+                    </div>
+                  )}
+                </section>
               )}
 
               {/* Test Metadata Card */}
